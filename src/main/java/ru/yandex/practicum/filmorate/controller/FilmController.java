@@ -21,12 +21,12 @@ public class FilmController {
 
 
     @GetMapping
-    private Collection<Film> get() {
+    public Collection<Film> get() {
         return films.values();
     }
 
     @PostMapping
-    private Film create(@RequestBody Film film) {
+    public Film create(@RequestBody Film film) {
         if (isFilmValid(film)) {
             long filmId = Utils.nextId(films);
             film.setId(filmId);
@@ -37,7 +37,7 @@ public class FilmController {
     }
 
     @PutMapping
-    private Film update(@RequestBody Film film) {
+    public Film update(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
             log.warn("there is no film with id: {}", film.getId());
             throw new ValidationException("There is no such film");
@@ -49,22 +49,24 @@ public class FilmController {
     }
 
     private boolean isFilmValid(Film film) {
-        boolean isFilmValid;
         if (film.getName() == null || film.getName().isEmpty()) {
             log.warn("film name is empty");
             throw new ValidationException("film name is empty");
-        } else if (film.getDescription().length() > 200) {
+        }
+        if (film.getDescription().length() > 200) {
             log.warn("film description is to long");
             throw new ValidationException("film description is to long");
-        } else if (film.getReleaseDate().isBefore(LocalDate.parse("28-12-1895", DateTimeFormatter.ofPattern("dd-MM-yyyy")))) {
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.parse("28-12-1895", DateTimeFormatter.ofPattern("dd-MM-yyyy")))) {
             log.warn("release date is not valid");
             throw new ValidationException("release date is not valid");
-        } else if (film.getDuration() <= 0) {
+        }
+        if (film.getDuration() <= 0) {
             log.warn("Duration cant be negative");
             throw new ValidationException("Duration cant be negative");
-        } else isFilmValid = true;
+        }
 
-        return isFilmValid;
+        return true;
     }
 
 }

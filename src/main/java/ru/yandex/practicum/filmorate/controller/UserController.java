@@ -18,25 +18,24 @@ public class UserController {
     private final HashMap<Long, User> users = new HashMap<>();
 
     @GetMapping
-    private Collection<User> get() {
+    public Collection<User> get() {
         return users.values();
     }
 
     @PostMapping
-    private User create(@RequestBody User user) {
+    public User create(@RequestBody User user) {
         if (isUserValid(user)) {
             long userId = Utils.nextId(users);
             user.setId(userId);
             users.put(userId, user);
+            System.out.println(user);
             log.info("creating user: {}", user);
         }
         return user;
     }
 
     @PutMapping
-    private User update(@RequestBody User user) {
-        System.out.println(users);
-        System.out.println(user);
+    public User update(@RequestBody User user) {
         if (!users.containsKey(user.getId())) {
             log.warn("user with id {} doesn't exist. cant update", user.getId());
             throw new ValidationException("user doesn't exist. cant update");
@@ -49,7 +48,6 @@ public class UserController {
     }
 
     private boolean isUserValid(User user) {
-        boolean isUserValid = false;
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
             log.warn("email is empty or doesn't have @");
             throw new ValidationException("email is empty or doesn't have @");
@@ -65,9 +63,8 @@ public class UserController {
         if (user.getName() == null) {
             log.info("username is empty will use login as a username");
             user.setName(user.getLogin());
-            isUserValid = true;
         }
-        return isUserValid;
+        return true;
     }
 
 
