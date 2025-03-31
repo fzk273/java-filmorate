@@ -51,23 +51,31 @@ public class UserControllerTests {
     }
 
     @Test
-    public void userLoginIsValid() {
+    public void userLoginWithSpacesThrowsExceptions() {
         user.setLogin("incorrect login");
-        Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        Assertions.assertEquals("login is empty or contains spaces", exception.getMessage());
+    }
+
+    @Test
+    public void nullUserLoginThrowsExceptions() {
         user.setLogin(null);
-        Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        Assertions.assertEquals("login is empty or contains spaces", exception.getMessage());
     }
 
     @Test
     public void userBirthdayIsValid() {
         user.setBirthday(LocalDate.of(3000, 1, 1));
-        Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userController.create(user));
+        Assertions.assertEquals("date of birth is after current date", exception.getMessage());
     }
 
     @Test
     public void cantUpdateNonExistingUser() {
         user.setId(1000L);
-        Assertions.assertThrows(ValidationException.class, () -> userController.update(user));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> userController.update(user));
+        Assertions.assertEquals("user doesn't exist. cant update", exception.getMessage());
     }
 
     @Test

@@ -35,27 +35,39 @@ public class FilmControllerTests {
     }
 
     @Test
-    public void filmCreationValidatorIsWorking() {
+    public void createFilmWithReleaseDateBeforeFirstFilmReleaseThrowsException() {
         film.setReleaseDate(LocalDate.of(1894, 12, 12));
-        Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
-        film.setReleaseDate(LocalDate.of(2000, 12, 12));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
+        Assertions.assertEquals("release date is not valid", exception.getMessage());
+    }
 
+    @Test
+    public void createFilmWithEmptyNameThrowsException() {
         film.setName(null);
-        Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
-        film.setName("borat");
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
+        Assertions.assertEquals("film name cannot be empty", exception.getMessage());
 
+    }
+
+    @Test
+    public void createFilmWithDescriptionLargerThan200ThrowsException() {
         film.setDescription("c".repeat(202));
-        Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
-        film.setDescription("desc");
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
+        Assertions.assertEquals("film description is to long", exception.getMessage());
+    }
 
+    @Test
+    public void createFilmWithNegativeDurationThrowsException() {
         film.setDuration(-1);
-        Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.create(film));
+        Assertions.assertEquals("Duration cant be negative", exception.getMessage());
     }
 
     @Test
     public void filmUpdateWithInvalidIdIsFailing() {
         film.setId(10000L);
-        Assertions.assertThrows(ValidationException.class, () -> filmController.update(film));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.update(film));
+        Assertions.assertTrue(exception.getMessage().contains("There is no such film"));
     }
 
     @Test

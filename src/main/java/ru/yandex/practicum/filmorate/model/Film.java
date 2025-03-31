@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.EqualsAndHashCode;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -12,13 +12,17 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
-@ToString
-@EqualsAndHashCode
+@Data
 public class Film {
 
-    Long id;
-    String name;
-    String description;
-    LocalDate releaseDate;
-    Integer duration;
+    private Long id;
+    @NotBlank(message = "Film name cannot be empty")
+    private String name;
+    @Size(min = 1, max = 200, message = "Description should be 1-200 symbols")
+    private String description;
+    @NotNull(message = "Release date cannot be null")
+    @PastOrPresent
+    private LocalDate releaseDate;
+    @Positive(message = "Duration must be positive")
+    private Integer duration;
 }
