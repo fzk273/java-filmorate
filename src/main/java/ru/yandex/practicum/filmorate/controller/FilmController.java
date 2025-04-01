@@ -28,7 +28,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (isFilmValid(film)) {
+        if (isFilmValidForCreate(film)) {
             long filmId = Utils.nextId(films);
             film.setId(filmId);
             films.put(filmId, film);
@@ -37,21 +37,40 @@ public class FilmController {
         return film;
     }
 
-    //todo тут потенциально возможен баг если заслать невалидную дату (до релиза первого фильма).
-    // как реализовать правильно?
-    // разбить метод изФильмВалид на отдельные методы и тут их вызывать??
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
+    public Film update(@RequestBody Film film) {
+        Film newFilm = isFilmValidForUpdate(film);
+        films.put(film.getId(), newFilm);
+        log.info("updating film: {}", newFilm);
+        return film;
+    }
+
+    private Film isFilmValidForUpdate(Film film) {
         if (film.getId() == null || !films.containsKey(film.getId())) {
             log.warn("there is no film with id: {}", film.getId());
             throw new ValidationException("There is no such film");
         }
-        films.put(film.getId(), film);
-        log.info("updating film: {}", film);
+        Film oldFilmObject = films.get(film.getId());
+        if (film.getName() == null) {
+            film.setName(oldFilmObject.getName());
+        }
+        if (film.getDescription() == null) {
+            film.setDescription(oldFilmObject.getDescription());
+        } else if (film.getDescription().length() > maxDescriptionLength) {
+            throw new ValidationException("film description is to long");
+        }
+        if (film.getReleaseDate() == null) {
+            film.setReleaseDate(oldFilmObject.getReleaseDate());
+        } else if (!film.getReleaseDate().isAfter(LocalDate.parse(firstMovieReleaseDate, dateTimeFormatter))) {
+            throw new ValidationException("release date is not valid");
+        }
+        if (film.getDuration() == null) {
+            film.setDuration(oldFilmObject.getDuration());
+        }
         return film;
     }
 
-    private boolean isFilmValid(Film film) {
+    private boolean isFilmValidForCreate(Film film) {
         if (film.getName() == null || film.getName().isEmpty()) {
             log.warn("film name is empty");
             throw new ValidationException("film name cannot be empty");
