@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -11,10 +13,12 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
 
-    public void addFriend(Long userId, Long FriendId) {
-        userStorage.addFriend(userId, FriendId);
+    public User addFriend(Long userId, Long FriendId) {
+        log.info("add friend service");
+        return userStorage.addFriend(userId, FriendId);
     }
 
     public void deleteFriend(Long userId, Long FriendId) {

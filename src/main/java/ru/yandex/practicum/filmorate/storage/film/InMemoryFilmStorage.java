@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.Utils;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -22,7 +23,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final String firstMovieReleaseDate = "28-12-1895";
     private final int maxDescriptionLength = 200;
 
-
     @Override
     public Collection<Film> getFilms() {
         return films.values();
@@ -41,6 +41,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilms(Film film) {
+        if (!films.containsKey(film.getId())) {
+            log.warn("there is no film with id: {}", film.getId());
+            throw new NotFoundException("there is no such film");
+        }
         Film newFilm = isFilmValidForUpdate(film);
         films.put(film.getId(), newFilm);
         log.info("updating film: {}", newFilm);
@@ -49,13 +53,20 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void addLike(Long filmId, Long userId) {
-        //TODO not null check
+        if (!films.containsKey(filmId)) {
+            log.warn("there is no film with id: {}", filmId);
+            throw new NotFoundException("there is no such film");
+        }
         films.get(filmId).getLikes().add(userId);
     }
 
     @Override
     public void deleteLike(Long filmId, Long userId) {
-        //TODO not null check
+        if (!films.containsKey(filmId)) {
+            log.warn("there is no film with id: {}", filmId);
+
+            throw new NotFoundException("there is no such film");
+        }
         films.get(filmId).getLikes().remove(userId);
     }
 
@@ -70,7 +81,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private Film isFilmValidForUpdate(Film film) {
         if (film.getId() == null || !films.containsKey(film.getId())) {
             log.warn("there is no film with id: {}", film.getId());
-            throw new ValidationException("There is no such film");
+            throw new NotFoundException("There is no such film");
         }
         Film oldFilmObject = films.get(film.getId());
         if (film.getName() == null) {

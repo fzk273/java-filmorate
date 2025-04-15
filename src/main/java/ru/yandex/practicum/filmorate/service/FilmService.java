@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private FilmStorage storage;
+    private final FilmStorage storage;
 
 
     public Collection<Film> getFilms() {

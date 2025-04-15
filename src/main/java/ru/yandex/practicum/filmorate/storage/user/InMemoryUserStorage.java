@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.Utils;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -41,7 +39,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
             log.warn("user with id {} doesn't exist. cant update", user.getId());
-            throw new ValidationException("user doesn't exist. cant update");
+            throw new NotFoundException("user doesn't exist. cant update");
         }
         if (isUserValid(user)) {
             users.put(user.getId(), user);
@@ -51,18 +49,29 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriend(Long userId, Long friendId) {
-        //TODO not null check
-        users.get(userId).getFriends().add(friendId);
-        log.info("new friend with id: {}, was added to a friend list of user: {}", friendId, userId);
-        users.get(friendId).getFriends().add(userId);
-        log.info("new friend with id: {}, was added to a friend list of user: {}", userId, friendId);
-
+    public User addFriend(Long userId, Long friendId) {
+        if (findUserById(userId).isEmpty() || findUserById(friendId).isEmpty()) {
+            log.error("user {} or friend {} not found", userId, friendId);
+            throw new NotFoundException("user not found");
+        }
+        addToFriendsSet(userId, friendId);
+        addToFriendsSet(friendId, userId);
+        return users.get(userId);
     }
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
-        //TODO not null check
+        if (findUserById(userId).isEmpty() || findUserById(friendId).isEmpty()) {
+            log.error("user {} or friend {} not found", userId, friendId);
+            throw new NotFoundException("user not found");
+        }
+        if (users.get(userId).getFriends().isEmpty() || !users.get(userId).getFriends().contains(friendId)) {
+            log.error("user {} is not in friends list of user {} and vise versa", userId, friendId);
+            throw new ValidationException("error");
+        }
+
+
+
         users.get(userId).getFriends().remove(friendId);
         log.info("friend with id: {}, was removed from a friends list of user: {}", friendId, userId);
         users.get(friendId).getFriends().remove(userId);
@@ -71,13 +80,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Set<Long> getFriends(Long userId) {
-        //TODO not null check
+        if (findUserById(userId).isEmpty()) {
+            throw new NotFoundException("There is no such user");
+        }
         return users.get(userId).getFriends();
     }
 
     @Override
     public Set<Long> getCommonFriends(Long userId, Long friendId) {
-        //TODO not null check
         Set<Long> userFriends = getFriends(userId);
         Set<Long> friendFriends = getFriends(friendId);
         Set<Long> commonFriends = new HashSet<>(userFriends);
@@ -86,6 +96,17 @@ public class InMemoryUserStorage implements UserStorage {
         return commonFriends;
     }
 
+    private void addToFriendsSet(Long userId, Long friendId) {
+        if (users.get(userId).getFriends() == null) {
+            users.get(userId).setFriends(new HashSet<Long>(Math.toIntExact(friendId)));
+        } else {
+            Set<Long> newFriendSet = users.get(userId).getFriends();
+            newFriendSet.add(friendId);
+            users.get(userId).setFriends(newFriendSet);
+        }
+        log.info("new friend with id: {}, was added to a friend list of user: {}", friendId, userId);
+
+    }
 
     private boolean isUserValid(User user) {
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
@@ -105,5 +126,10 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         return true;
+    }
+
+    private Optional<User> findUserById(Long id) {
+        return users.values().stream()
+                .filter(user -> user.getId().equals(id)).findFirst();
     }
 }
