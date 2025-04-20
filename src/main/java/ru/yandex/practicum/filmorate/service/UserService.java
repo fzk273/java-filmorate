@@ -16,13 +16,13 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserStorage userStorage;
 
-    public User addFriend(Long userId, Long FriendId) {
+    public User addFriend(Long userId, Long friendId) {
         log.info("add friend service");
-        return userStorage.addFriend(userId, FriendId);
+        return userStorage.addFriend(userId, friendId);
     }
 
-    public void deleteFriend(Long userId, Long FriendId) {
-        userStorage.deleteFriend(userId, FriendId);
+    public void deleteFriend(Long userId, Long friendId) {
+        userStorage.deleteFriend(userId, friendId);
     }
 
     public Set<Long> getFriendsList(Long userId) {
@@ -41,7 +41,7 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public Set<Long> getCommonFriends(Long userId, Long FriendId) {
-        return userStorage.getCommonFriends(userId, FriendId);
+    public Set<Long> getCommonFriends(Long userId, Long friendId) {
+        return userStorage.getCommonFriends(userId, friendId);
     }
 }
