@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -73,8 +74,9 @@ public class FilmControllerTests {
     @Test
     public void filmUpdateWithInvalidIdIsFailing() {
         film.setId(10000L);
-        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.update(film));
-        Assertions.assertTrue(exception.getMessage().contains("There is no such film"));
+        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> filmController.update(film));
+        System.out.println(exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("there is no such film"));
     }
 
     @Test
