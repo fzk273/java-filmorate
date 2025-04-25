@@ -66,11 +66,6 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("user {} or friend {} not found", userId, friendId);
             throw new NotFoundException("user not found");
         }
-//        if (users.get(userId).getFriends().isEmpty() || !users.get(userId).getFriends().contains(friendId)) {
-//            log.error("user {} is not in friends list of user {} and vise versa", userId, friendId);
-//            throw new ValidationException("error");
-//        }
-
         users.get(userId).getFriends().remove(friendId);
         log.info("friend with id: {}, was removed from a friends list of user: {}", friendId, userId);
         users.get(friendId).getFriends().remove(userId);
@@ -83,7 +78,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("There is no such user");
         }
         return users.get(userId).getFriends().stream()
-                .map(user -> users.get(user))
+                .map(users::get)
                 .collect(Collectors.toList());
     }
 
@@ -130,7 +125,8 @@ public class InMemoryUserStorage implements UserStorage {
         return true;
     }
 
-    private Optional<User> findUserById(Long id) {
+    @Override
+    public Optional<User> findUserById(Long id) {
         return users.values().stream()
                 .filter(user -> user.getId().equals(id)).findFirst();
     }

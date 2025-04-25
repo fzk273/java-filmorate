@@ -13,7 +13,6 @@ import java.util.List;
 public class FilmService {
     private final FilmStorage storage;
 
-
     public Collection<Film> getFilms() {
         return storage.getFilms();
     }
@@ -37,6 +36,4 @@ public class FilmService {
     public List<Film> getTopTen(Integer count) {
         return storage.getTopTen(count);
     }
-
-
 }
