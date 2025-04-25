@@ -4,10 +4,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -23,13 +26,23 @@ public class FilmControllerTests {
     FilmService filmService;
     Film film;
     UserStorage userStorage;
+    UserService userService;
+    UserController userController;
+    User user;
 
     @BeforeEach
     public void init() {
         userStorage = new InMemoryUserStorage(new HashMap<>());
+        userService = new UserService(userStorage);
+        userController = new UserController(userService);
         filmStorage = new InMemoryFilmStorage(userStorage);
         filmService = new FilmService(filmStorage);
         filmController = new FilmController(filmService);
+        user = new User();
+        user.setName("name");
+        user.setLogin("login");
+        user.setEmail("mail@mail.com");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
         film = new Film();
         film.setName("jackass 3d");
         film.setDescription("nice comedy");
@@ -114,5 +127,58 @@ public class FilmControllerTests {
         Assertions.assertTrue(filmController.get().contains(oneMoreCreatedFilm));
         Assertions.assertEquals(2, filmController.get().size());
 
+    }
+
+    @Test
+    public void userCanAddLikeToAMovie() {
+        filmController.create(film);
+        userController.create(user);
+        filmController.addLike(film.getId(), user.getId());
+        Assertions.assertTrue(film.getLikes().contains(user.getId()));
+    }
+
+    @Test
+    public void userCanDeleteLike() {
+        filmController.create(film);
+        userController.create(user);
+        filmController.addLike(film.getId(), user.getId());
+        Assertions.assertTrue(film.getLikes().contains(user.getId()));
+        filmController.deleteLike(film.getId(), user.getId());
+        Assertions.assertTrue(film.getLikes().isEmpty());
+    }
+
+
+    @Test
+    public void userGetTop3() {
+        filmController.create(film);
+        userController.create(user);
+
+        Film film2 = new Film();
+        film2.setName("jackass 2d");
+        film2.setDescription("nice comedy2");
+        film2.setDuration(90);
+        film2.setReleaseDate(LocalDate.of(2021, 1, 1));
+        filmController.create(film2);
+
+        Film film3 = new Film();
+        film3.setName("jackass 4d");
+        film3.setDescription("nice comedy4");
+        film3.setDuration(90);
+        film3.setReleaseDate(LocalDate.of(2022, 1, 1));
+        filmController.create(film3);
+
+        Film film4 = new Film();
+        film4.setName("jackass 4d");
+        film4.setDescription("nice comedy");
+        film4.setDuration(90);
+        film4.setReleaseDate(LocalDate.of(2022, 1, 1));
+        filmController.create(film4);
+
+        filmController.addLike(film.getId(), user.getId());
+        filmController.addLike(film2.getId(), user.getId());
+        filmController.addLike(film3.getId(), user.getId());
+
+        Assertions.assertEquals(3, filmController.firstTen(3).size());
+        Assertions.assertTrue(filmController.firstTen(3).contains(film));
     }
 }
