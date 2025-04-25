@@ -17,18 +17,18 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleOtherErrors(final Throwable e) {
         log.error(e.getMessage());
-        return new ErrorResponse("error", "Ooops");
+        return new ErrorResponse("error", "Internal Server Error");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        return new ErrorResponse("error", "desc");
+        return new ErrorResponse("error", "Bad Request");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        return new ErrorResponse("error", "resource not found");
+        return new ErrorResponse("error", "Resource Not Found");
     }
 }

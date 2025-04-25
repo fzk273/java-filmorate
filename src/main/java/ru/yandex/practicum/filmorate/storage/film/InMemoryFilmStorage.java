@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private final String firstMovieReleaseDate = "28-12-1895";
-    private final int maxDescriptionLength = 200;
+    private static final String FIRST_MOVIE_RELEASE_DATE = "28-12-1895";
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
 
     @Override
     public Collection<Film> getFilms() {
@@ -89,12 +89,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         if (film.getDescription() == null) {
             film.setDescription(oldFilmObject.getDescription());
-        } else if (film.getDescription().length() > maxDescriptionLength) {
+        } else if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
             throw new ValidationException("film description is to long");
         }
         if (film.getReleaseDate() == null) {
             film.setReleaseDate(oldFilmObject.getReleaseDate());
-        } else if (!film.getReleaseDate().isAfter(LocalDate.parse(firstMovieReleaseDate, dateTimeFormatter))) {
+        } else if (!film.getReleaseDate().isAfter(LocalDate.parse(FIRST_MOVIE_RELEASE_DATE, dateTimeFormatter))) {
             throw new ValidationException("release date is not valid");
         }
         if (film.getDuration() == null) {
@@ -109,11 +109,11 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("film name is empty");
             throw new ValidationException("film name cannot be empty");
         }
-        if (film.getDescription() == null || film.getDescription().length() > maxDescriptionLength) {
+        if (film.getDescription() == null || film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
             log.warn("film description is to long");
             throw new ValidationException("film description is to long");
         }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.parse(firstMovieReleaseDate, dateTimeFormatter))) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.parse(FIRST_MOVIE_RELEASE_DATE, dateTimeFormatter))) {
             log.warn("release date is not valid");
             throw new ValidationException("release date is not valid");
         }

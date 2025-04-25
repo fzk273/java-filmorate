@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -65,12 +66,10 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("user {} or friend {} not found", userId, friendId);
             throw new NotFoundException("user not found");
         }
-        if (users.get(userId).getFriends().isEmpty() || !users.get(userId).getFriends().contains(friendId)) {
-            log.error("user {} is not in friends list of user {} and vise versa", userId, friendId);
-            throw new ValidationException("error");
-        }
-
-
+//        if (users.get(userId).getFriends().isEmpty() || !users.get(userId).getFriends().contains(friendId)) {
+//            log.error("user {} is not in friends list of user {} and vise versa", userId, friendId);
+//            throw new ValidationException("error");
+//        }
 
         users.get(userId).getFriends().remove(friendId);
         log.info("friend with id: {}, was removed from a friends list of user: {}", friendId, userId);
@@ -79,19 +78,22 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<Long> getFriends(Long userId) {
+    public List<User> getFriends(Long userId) {
         if (findUserById(userId).isEmpty()) {
             throw new NotFoundException("There is no such user");
         }
-        return users.get(userId).getFriends();
+        return users.get(userId).getFriends().stream()
+                .map(user -> users.get(user))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Set<Long> getCommonFriends(Long userId, Long friendId) {
-        Set<Long> userFriends = getFriends(userId);
-        Set<Long> friendFriends = getFriends(friendId);
-        Set<Long> commonFriends = new HashSet<>(userFriends);
-        commonFriends.retainAll(friendFriends);
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        List<User> userFriends = getFriends(userId);
+        List<User> friendFriends = getFriends(friendId);
+        List<User> commonFriends = userFriends.stream()
+                .filter(friendFriends::contains)
+                .collect(Collectors.toList());
         log.info("Common friends for {} and {} are: {}", userId, friendId, commonFriends);
         return commonFriends;
     }

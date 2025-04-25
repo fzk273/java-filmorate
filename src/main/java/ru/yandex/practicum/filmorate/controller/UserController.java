@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,28 +32,25 @@ public class UserController {
         return userService.update(user);
     }
 
-    //TODO я не понимаю, что тут нужно отдать, что бы тест прошёл. нид хэлп
-    // уже всё перепробовал, в тз ни слова про респонс нет.
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         log.info("add friend controller");
         return userService.addFriend(id, friendId);
     }
 
-    //TODO так же не понимаю почему тест ругается. руками протестил, всё нормально работает
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Set<Long> getFriends(@PathVariable("id") Long id) {
+    public List<User> getFriends(@PathVariable("id") Long id) {
         return userService.getFriendsList(id);
     }
 
-    //TODO так же не понимаю, что нужно отдать тут. постман ругается постоянно.
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<Long> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
-        return userService.getCommonFriends(id, friendId).stream().toList();
+    public List<User> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
+        log.info("{} + {} ", id, friendId);
+        return userService.getCommonFriends(id, friendId);
     }
 }
