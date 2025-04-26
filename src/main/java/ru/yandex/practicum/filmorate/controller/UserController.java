@@ -1,70 +1,56 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.Utils;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 @RestController
-@Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final HashMap<Long, User> users = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
 
     @GetMapping
     public Collection<User> get() {
-        return users.values();
+        return userService.get();
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        if (isUserValid(user)) {
-            long userId = Utils.nextId(users);
-            user.setId(userId);
-            users.put(userId, user);
-            System.out.println(user);
-            log.info("creating user: {}", user);
-        }
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User update(@RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            log.warn("user with id {} doesn't exist. cant update", user.getId());
-            throw new ValidationException("user doesn't exist. cant update");
-        }
-        if (isUserValid(user)) {
-            users.put(user.getId(), user);
-        }
-
-        return user;
+        return userService.update(user);
     }
 
-    private boolean isUserValid(User user) {
-        if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            log.warn("email is empty or doesn't have @");
-            throw new ValidationException("email is empty or doesn't have @");
-        }
-        if (user.getLogin() == null || user.getLogin().contains(" ")) {
-            log.warn("login is empty or contains spaces");
-            throw new ValidationException("login is empty or contains spaces");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("looks like you was born in the future. check your birthday");
-            throw new ValidationException("date of birth is after current date");
-        }
-        if (user.getName() == null) {
-            log.info("username is empty will use login as a username");
-            user.setName(user.getLogin());
-        }
-        return true;
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        log.info("add friend controller");
+        return userService.addFriend(id, friendId);
     }
 
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+        userService.deleteFriend(id, friendId);
+    }
 
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable("id") Long id) {
+        return userService.getFriendsList(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
+        log.info("{} + {} ", id, friendId);
+        return userService.getCommonFriends(id, friendId);
+    }
 }
