@@ -22,7 +22,6 @@ public class UserControllerTests {
 
     @BeforeEach
     public void init() {
-
         userStorage = new InMemoryUserStorage(new HashMap<>());
         userService = new UserService(userStorage);
         userController = new UserController(userService);

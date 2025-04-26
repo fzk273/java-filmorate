@@ -24,20 +24,26 @@ public class FilmControllerTests {
     FilmController filmController;
     FilmStorage filmStorage;
     FilmService filmService;
-    Film film;
     UserStorage userStorage;
     UserService userService;
     UserController userController;
     User user;
+
+    Film film;
+    Film film2;
+    Film film3;
+    Film film4;
+
 
     @BeforeEach
     public void init() {
         userStorage = new InMemoryUserStorage(new HashMap<>());
         userService = new UserService(userStorage);
         userController = new UserController(userService);
-        filmStorage = new InMemoryFilmStorage(userStorage);
-        filmService = new FilmService(filmStorage);
+        filmStorage = new InMemoryFilmStorage();
+        filmService = new FilmService(filmStorage, userStorage);
         filmController = new FilmController(filmService);
+
         user = new User();
         user.setName("name");
         user.setLogin("login");
@@ -48,6 +54,22 @@ public class FilmControllerTests {
         film.setDescription("nice comedy");
         film.setDuration(90);
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
+
+        film2 = new Film();
+        film2.setName("jackass 2d");
+        film2.setDescription("nice comedy2");
+        film2.setDuration(90);
+        film2.setReleaseDate(LocalDate.of(2021, 1, 1));
+        film3 = new Film();
+        film3.setName("jackass 3d");
+        film3.setDescription("nice comedy3");
+        film3.setDuration(90);
+        film3.setReleaseDate(LocalDate.of(2022, 1, 1));
+        film4 = new Film();
+        film4.setName("jackass 4d");
+        film4.setDescription("nice comedy");
+        film4.setDuration(90);
+        film4.setReleaseDate(LocalDate.of(2022, 1, 1));
     }
 
     @Test
@@ -93,38 +115,31 @@ public class FilmControllerTests {
     public void filmUpdateWithInvalidIdIsFailing() {
         film.setId(10000L);
         NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> filmController.update(film));
-        System.out.println(exception.getMessage());
         Assertions.assertTrue(exception.getMessage().contains("there is no such film"));
     }
 
     @Test
     public void canUpdateFilm() {
-        Film createdFilm = filmController.create(film);
-        Film oneMoreFilm = new Film();
-        oneMoreFilm.setId(createdFilm.getId());
-        oneMoreFilm.setName("jackass forever");
-        oneMoreFilm.setDescription("very nice comedy");
-        oneMoreFilm.setDuration(90);
-        oneMoreFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
-        Film updatedFilm = filmController.update(oneMoreFilm);
-        Assertions.assertEquals(oneMoreFilm.getName(), updatedFilm.getName());
-        Assertions.assertEquals(oneMoreFilm.getDescription(), updatedFilm.getDescription());
-        Assertions.assertEquals(createdFilm.getDuration(), updatedFilm.getDuration());
-        Assertions.assertEquals(createdFilm.getReleaseDate(), updatedFilm.getReleaseDate());
+        filmController.create(film);
+        film2.setId(film.getId());
+        film2.setName("jackass forever");
+        film2.setDescription("very nice comedy");
+        film2.setDuration(90);
+        film2.setReleaseDate(LocalDate.of(2020, 1, 1));
+        Film updatedFilm = filmController.update(film2);
+        Assertions.assertEquals(film2.getName(), updatedFilm.getName());
+        Assertions.assertEquals(film2.getDescription(), updatedFilm.getDescription());
+        Assertions.assertEquals(film.getDuration(), updatedFilm.getDuration());
+        Assertions.assertEquals(film.getReleaseDate(), updatedFilm.getReleaseDate());
         Assertions.assertEquals(1, filmController.get().size());
     }
 
     @Test
     public void filmGetContainsRightObjects() {
-        Film createdFilm = filmController.create(film);
-        Film oneMoreFilm = new Film();
-        oneMoreFilm.setName("Revolver");
-        oneMoreFilm.setDescription("very nice comedy");
-        oneMoreFilm.setDuration(90);
-        oneMoreFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
-        Film oneMoreCreatedFilm = filmController.create(oneMoreFilm);
-        Assertions.assertTrue(filmController.get().contains(createdFilm));
-        Assertions.assertTrue(filmController.get().contains(oneMoreCreatedFilm));
+        filmController.create(film);
+        filmController.create(film2);
+        Assertions.assertTrue(filmController.get().contains(film));
+        Assertions.assertTrue(filmController.get().contains(film2));
         Assertions.assertEquals(2, filmController.get().size());
 
     }
@@ -147,37 +162,17 @@ public class FilmControllerTests {
         Assertions.assertTrue(film.getLikes().isEmpty());
     }
 
-
     @Test
     public void userGetTop3() {
-        filmController.create(film);
         userController.create(user);
-
-        Film film2 = new Film();
-        film2.setName("jackass 2d");
-        film2.setDescription("nice comedy2");
-        film2.setDuration(90);
-        film2.setReleaseDate(LocalDate.of(2021, 1, 1));
+        filmController.create(film);
         filmController.create(film2);
-
-        Film film3 = new Film();
-        film3.setName("jackass 4d");
-        film3.setDescription("nice comedy4");
-        film3.setDuration(90);
-        film3.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmController.create(film3);
-
-        Film film4 = new Film();
-        film4.setName("jackass 4d");
-        film4.setDescription("nice comedy");
-        film4.setDuration(90);
-        film4.setReleaseDate(LocalDate.of(2022, 1, 1));
         filmController.create(film4);
 
         filmController.addLike(film.getId(), user.getId());
         filmController.addLike(film2.getId(), user.getId());
         filmController.addLike(film3.getId(), user.getId());
-
         Assertions.assertEquals(3, filmController.firstTen(3).size());
         Assertions.assertTrue(filmController.firstTen(3).contains(film));
     }

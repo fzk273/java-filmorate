@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.Utils;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
-    private final UserStorage userStorage;
     private final HashMap<Long, Film> films = new HashMap<>();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final String FIRST_MOVIE_RELEASE_DATE = "28-12-1895";
@@ -61,9 +59,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("there is no film with id: {}", filmId);
             throw new NotFoundException("there is no such film");
         }
-        if (userStorage.findUserById(userId).isEmpty()) {
-            throw new NotFoundException("the is no user with id: " + userId);
-        }
         films.get(filmId).getLikes().add(userId);
     }
 
@@ -72,9 +67,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(filmId)) {
             log.warn("there is no film with id: {}", filmId);
             throw new NotFoundException("there is no such film");
-        }
-        if (userStorage.findUserById(userId).isEmpty()) {
-            throw new NotFoundException("the is no user with id: " + userId);
         }
         films.get(filmId).getLikes().remove(userId);
     }
