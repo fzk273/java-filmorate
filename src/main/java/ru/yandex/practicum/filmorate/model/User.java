@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Past;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import ru.yandex.practicum.filmorate.emuns.FriendshipStatus;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -24,4 +25,5 @@ public class User {
     @Past
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
+    private FriendshipStatus friendshipStatus;
 }

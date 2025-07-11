@@ -5,6 +5,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import ru.yandex.practicum.filmorate.emuns.Genre;
+import ru.yandex.practicum.filmorate.emuns.MovieRating;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -26,4 +28,6 @@ public class Film {
     private LocalDate releaseDate;
     private Integer duration;
     private Set<Long> likes = new HashSet<>();
+    private Genre genre;
+    private MovieRating rating;
 }
