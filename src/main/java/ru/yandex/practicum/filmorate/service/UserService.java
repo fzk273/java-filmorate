@@ -1,47 +1,49 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.model.entity.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final UserStorage userStorage;
+    private final UserDbStorage userStorage;
+    private final UserMapper userMapper;
 
-    public User addFriend(Long userId, Long friendId) {
+    public UserResponseDto addFriend(Long userId, Long friendId) {
         log.info("add friend service");
-        return userStorage.addFriend(userId, friendId);
+        return userMapper.convertToDto(userStorage.addFriend(userId, friendId));
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         userStorage.deleteFriend(userId, friendId);
     }
 
-    public List<User> getFriendsList(Long userId) {
-        return userStorage.getFriends(userId);
+    public List<UserResponseDto> getFriendsList(Long userId) {
+        return userStorage.getFriends(userId).stream().map(userMapper::convertToDto).toList();
     }
 
-    public Collection<User> get() {
-        return userStorage.get();
+    public Collection<UserResponseDto> get() {
+        return userStorage.get().stream().map(userMapper::convertToDto).toList();
     }
 
-    public User create(User user) {
-        return userStorage.create(user);
+    public UserResponseDto create(User user) {
+        return userMapper.convertToDto(userStorage.create(user));
     }
 
-    public User update(User user) {
-        return userStorage.update(user);
+    public UserResponseDto update(User user) {
+        return userMapper.convertToDto(userStorage.update(user));
     }
 
-    public List<User> getCommonFriends(Long userId, Long friendId) {
-        return userStorage.getCommonFriends(userId, friendId);
+    public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
+        return userStorage.getCommonFriends(userId, friendId).stream().map(userMapper::convertToDto).toList();
     }
 }

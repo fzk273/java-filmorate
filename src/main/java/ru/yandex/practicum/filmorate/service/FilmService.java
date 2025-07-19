@@ -3,8 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.dto.request.FilmRequestDto;
+import ru.yandex.practicum.filmorate.model.dto.response.FilmResponseDto;
+import ru.yandex.practicum.filmorate.model.entity.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
@@ -13,20 +16,23 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage storage;
+    private final FilmDbStorage storage;
     private final UserStorage userStorage;
+    private final FilmMapper filmMapper;
 
-
-    public Collection<Film> getFilms() {
-        return storage.getFilms();
+    public Collection<FilmResponseDto> getFilms() {
+        return storage.getFilms().stream().map(filmMapper::convertToDto).toList();
     }
 
-    public Film updateFilms(Film film) {
-        return storage.updateFilms(film);
+    public FilmResponseDto updateFilms(FilmRequestDto filmRequestDto) {
+        Film film = storage.updateFilms(filmMapper.convertToEntity(filmRequestDto));
+        return filmMapper.convertToDto(film);
     }
 
-    public Film createFilms(Film film) {
-        return storage.createFilms(film);
+    public FilmResponseDto createFilms(FilmRequestDto filmRequestDto) {
+
+        Film newFilm = storage.createFilms(filmMapper.convertToEntity(filmRequestDto));
+        return filmMapper.convertToDto(newFilm);
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -43,7 +49,8 @@ public class FilmService {
         storage.deleteLike(filmId, userId);
     }
 
-    public List<Film> getTopTen(Integer count) {
-        return storage.getTopTen(count);
+    public List<FilmResponseDto> getTopTen(Integer count) {
+
+        return storage.getTopTen(count).stream().map(filmMapper::convertToDto).toList();
     }
 }

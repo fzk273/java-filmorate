@@ -1,25 +1,17 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.model.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import ru.yandex.practicum.filmorate.emuns.Genre;
-import ru.yandex.practicum.filmorate.emuns.MovieRating;
+import ru.yandex.practicum.filmorate.model.dto.response.MpaDto;
+import ru.yandex.practicum.filmorate.model.entity.Genre;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
-/**
- * Film.
- */
-@Getter
-@Setter
 @Data
-public class Film {
-
+public class FilmRequestDto {
     private Long id;
     private String name;
     private String description;
@@ -27,7 +19,6 @@ public class Film {
     @PastOrPresent
     private LocalDate releaseDate;
     private Integer duration;
-    private Set<Long> likes = new HashSet<>();
-    private Genre genre;
-    private MovieRating rating;
+    private Set<Genre> genres = Collections.emptySet();
+    private MpaDto mpa;
 }

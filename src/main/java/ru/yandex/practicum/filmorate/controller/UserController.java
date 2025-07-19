@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -18,22 +21,23 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> get() {
+    public Collection<UserResponseDto> get() {
         return userService.get();
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public UserResponseDto create(@RequestBody User user) {
+        log.info(user.toString());
         return userService.create(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public UserResponseDto update(@RequestBody User user) {
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+    public UserResponseDto addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
         log.info("add friend controller");
         return userService.addFriend(id, friendId);
     }
@@ -44,12 +48,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable("id") Long id) {
+    public List<UserResponseDto> getFriends(@PathVariable("id") Long id) {
         return userService.getFriendsList(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
+    public List<UserResponseDto> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
         log.info("{} + {} ", id, friendId);
         return userService.getCommonFriends(id, friendId);
     }
