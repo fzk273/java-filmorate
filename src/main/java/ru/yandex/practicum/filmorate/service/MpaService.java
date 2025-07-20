@@ -16,11 +16,15 @@ public class MpaService {
     private final MpaMapper mpaMapper;
     private final MpaDbStorage mpaDbStorage;
 
-    public List<MpaDto> getMappings() {
+    public List<MpaDto> getAllMpa() {
         return mpaDbStorage.getRatings().stream().map(mpaMapper::convertToDto).toList();
     }
 
-    public MpaDto getMappingById(Integer id) {
-        return mpaMapper.convertToDto(mpaDbStorage.getRatingById(id));
+    public MpaDto getMpaById(Integer id) {
+        return mpaMapper.convertToDto(mpaDbStorage.getMpaById(id));
+    }
+
+    public boolean checkMpaExist(Integer id) {
+        return mpaDbStorage.getMpaById(id) == null;
     }
 }

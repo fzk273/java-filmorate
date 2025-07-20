@@ -18,7 +18,7 @@ public class FilmResponseDto {
     private Integer duration;
     @Builder.Default
     private Set<Genre> genres = Collections.emptySet();
-    private MpaDto rating;
+    private MpaDto mpa;
     @Builder.Default
     private Set<Long> likes = Collections.emptySet();
 }

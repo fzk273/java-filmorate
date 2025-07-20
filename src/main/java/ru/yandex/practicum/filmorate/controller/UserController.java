@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -26,24 +26,26 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponseDto create(@RequestBody User user) {
+    public UserResponseDto create(@RequestBody UserRequestDto user) {
         log.info(user.toString());
         return userService.create(user);
     }
 
     @PutMapping
-    public UserResponseDto update(@RequestBody User user) {
+    public UserResponseDto update(@RequestBody UserRequestDto user) {
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public UserResponseDto addFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+    public UserResponseDto addFriend(@PathVariable("id") Long id,
+                                     @PathVariable("friendId") Long friendId) {
         log.info("add friend controller");
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable("id") Long id, @PathVariable("friendId") Long friendId) {
+    public void deleteFriend(@PathVariable("id") Long id,
+                             @PathVariable("friendId") Long friendId) {
         userService.deleteFriend(id, friendId);
     }
 
@@ -53,7 +55,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<UserResponseDto> getCommonFriends(@PathVariable("id") Long id, @PathVariable("otherId") Long friendId) {
+    public List<UserResponseDto> getCommonFriends(@PathVariable("id") Long id,
+                                                  @PathVariable("otherId") Long friendId) {
         log.info("{} + {} ", id, friendId);
         return userService.getCommonFriends(id, friendId);
     }

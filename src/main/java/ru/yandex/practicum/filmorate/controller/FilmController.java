@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public FilmResponseDto create(FilmRequestDto filmRequestDto) {
+    public FilmResponseDto create(@RequestBody @Valid FilmRequestDto filmRequestDto) {
         log.info(filmRequestDto.toString());
         return filmService.createFilms(filmRequestDto);
     }

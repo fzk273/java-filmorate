@@ -22,7 +22,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getRatingById(Integer id) {
+    public Mpa getMpaById(Integer id) {
         String query = "SELECT * FROM mpa WHERE id = ?";
         return jdbc.queryForObject(query, mpaRowMapper, id);
     }

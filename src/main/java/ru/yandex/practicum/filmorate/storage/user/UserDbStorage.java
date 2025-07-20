@@ -82,7 +82,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getFriends(Long userId) {
-        String query = "SELECT FROM friends WHERE user_id_1 = ?";
+        String query = """
+                    SELECT u.*
+                    FROM users u
+                    JOIN friends f ON u.id = f.friend_id
+                    WHERE f.user_id = ?
+                """;
         return jdbc.query(query, userRowMapper, userId);
     }
 

@@ -18,7 +18,7 @@ public class FilmMapper {
                 .likes(film.getLikes())
                 .description(film.getDescription())
                 .genres(film.getGenres())
-                .rating(mpaMapper.convertToDto(film.getMpa()))
+                .mpa(mpaMapper.convertToDto(film.getMpa()))
                 .releaseDate(film.getReleaseDate())
                 .duration(film.getDuration())
 

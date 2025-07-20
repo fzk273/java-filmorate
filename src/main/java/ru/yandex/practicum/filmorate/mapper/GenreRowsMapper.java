@@ -12,7 +12,7 @@ public class GenreRowsMapper implements RowMapper {
     @Override
     public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Genre.builder()
-                .id(rs.getInt("id"))
+                .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .build();
     }

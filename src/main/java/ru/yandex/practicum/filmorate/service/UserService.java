@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
@@ -35,12 +35,12 @@ public class UserService {
         return userStorage.get().stream().map(userMapper::convertToDto).toList();
     }
 
-    public UserResponseDto create(User user) {
-        return userMapper.convertToDto(userStorage.create(user));
+    public UserResponseDto create(UserRequestDto user) {
+        return userMapper.convertToDto(userStorage.create(userMapper.convertToEntity(user)));
     }
 
-    public UserResponseDto update(User user) {
-        return userMapper.convertToDto(userStorage.update(user));
+    public UserResponseDto update(UserRequestDto user) {
+        return userMapper.convertToDto(userStorage.update(userMapper.convertToEntity(user)));
     }
 
     public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {

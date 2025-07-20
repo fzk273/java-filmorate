@@ -20,12 +20,12 @@ public class MpaController {
 
     @GetMapping
     public List<MpaDto> getAllMpa() {
-        return mpaService.getMappings();
+        return mpaService.getAllMpa();
     }
 
     @GetMapping("/{id}")
     public MpaDto getMpaById(@PathVariable Integer id) {
         log.info(id.toString());
-        return mpaService.getMappingById(id);
+        return mpaService.getMpaById(id);
     }
 }
