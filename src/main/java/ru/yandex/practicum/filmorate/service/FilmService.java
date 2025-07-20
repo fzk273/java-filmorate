@@ -65,6 +65,9 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
+        if (getFilmById(filmId) == null) {
+            throw new NotFoundException("there is no film with Id: " + filmId);
+        }
         if (userStorage.findUserById(userId).isEmpty()) {
             throw new NotFoundException("the is no user with id: " + userId);
         }
@@ -72,6 +75,9 @@ public class FilmService {
     }
 
     public void deleteLike(Long filmId, Long userId) {
+        if (getFilmById(filmId) == null) {
+            throw new NotFoundException("there is no film with Id: " + filmId);
+        }
         if (userStorage.findUserById(userId).isEmpty()) {
             throw new NotFoundException("the is no user with id: " + userId);
         }

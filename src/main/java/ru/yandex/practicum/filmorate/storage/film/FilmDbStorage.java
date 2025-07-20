@@ -143,7 +143,7 @@ public class FilmDbStorage implements FilmStorage {
                 	ORDER BY likes_count DESC
                 	LIMIT ?) AS lc
                 ON f.id = lc.film_id
-                ORDER BY lc.likes_count DESC;
+                ORDER BY lc.likes_count DESC
                 """;
         return jdbc.query(query, filmRowsMapper, count);
     }
