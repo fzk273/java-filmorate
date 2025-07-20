@@ -37,6 +37,10 @@ public class FilmService {
     }
 
     public FilmResponseDto updateFilms(FilmRequestDto filmRequestDto) {
+        Long filmId = filmRequestDto.getId();
+        if (filmId == null) {
+            throw new RuntimeException("film id cannot be null");
+        }
         Film film = filmDbStorage.updateFilms(filmMapper.convertToEntity(filmRequestDto));
         return filmMapper.convertToDto(film);
     }

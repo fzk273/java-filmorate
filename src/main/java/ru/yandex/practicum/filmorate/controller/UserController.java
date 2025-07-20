@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -26,13 +27,14 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponseDto create(@RequestBody UserRequestDto user) {
-        log.info(user.toString());
+    public UserResponseDto create(@Valid @RequestBody UserRequestDto user) {
+        log.info("create user " + user.toString());
         return userService.create(user);
     }
 
     @PutMapping
-    public UserResponseDto update(@RequestBody UserRequestDto user) {
+    public UserResponseDto update(@Valid @RequestBody UserRequestDto user) {
+        log.info("update user " + user.toString());
         return userService.update(user);
     }
 
@@ -46,11 +48,13 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id,
                              @PathVariable("friendId") Long friendId) {
+        log.info("delete friend controller");
         userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<UserResponseDto> getFriends(@PathVariable("id") Long id) {
+        log.info("get friends controller");
         return userService.getFriendsList(id);
     }
 

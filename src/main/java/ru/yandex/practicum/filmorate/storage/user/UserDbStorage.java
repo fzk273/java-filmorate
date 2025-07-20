@@ -75,7 +75,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         String query = "DELETE FROM friends WHERE user_id_1 = ?";
-        String secondQuery = "DELETE FROM friends WHERE user_id_1 = ?";
+        String secondQuery = "DELETE FROM friends WHERE user_id_2 = ?";
         jdbc.update(query, userId);
         jdbc.update(secondQuery, friendId);
     }
@@ -85,8 +85,8 @@ public class UserDbStorage implements UserStorage {
         String query = """
                     SELECT u.*
                     FROM users u
-                    JOIN friends f ON u.id = f.friend_id
-                    WHERE f.user_id = ?
+                    JOIN friends f ON u.id = f.user_id_2
+                    WHERE f.user_id_1 =?
                 """;
         return jdbc.query(query, userRowMapper, userId);
     }

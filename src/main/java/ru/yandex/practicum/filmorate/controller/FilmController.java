@@ -26,30 +26,31 @@ public class FilmController {
 
     @PostMapping
     public FilmResponseDto create(@RequestBody @Valid FilmRequestDto filmRequestDto) {
-        log.info(filmRequestDto.toString());
+        log.info("film create " + filmRequestDto.toString());
         return filmService.createFilms(filmRequestDto);
     }
 
     @PutMapping
     public FilmResponseDto update(@RequestBody FilmRequestDto filmRequestDto) {
-        log.info(filmRequestDto.toString());
+        log.info("film update " + filmRequestDto.toString());
         return filmService.updateFilms(filmRequestDto);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        log.info("id: " + id + " userId: " + userId);
+        log.info("film add like " + "id: " + id + " userId: " + userId);
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
-        log.info("id: " + id + " userId: " + userId);
+        log.info("film delete like " + "id: " + id + " userId: " + userId);
         filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     public List<FilmResponseDto> firstTen(@RequestParam(value = "count", required = false, defaultValue = "10") Integer count) {
+        log.info("film get popular " + "count: " + count);
         return filmService.getTopTen(count);
     }
 }
