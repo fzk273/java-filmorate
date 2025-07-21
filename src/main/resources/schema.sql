@@ -10,13 +10,23 @@ CREATE TABLE IF NOT EXISTS friends (
   user_id_1 integer,
   user_id_2 integer,
   status varchar,
-  PRIMARY KEY (user_id_1, user_id_2)
+  PRIMARY KEY (user_id_1, user_id_2),
+  FOREIGN KEY (user_id_1) REFERENCES users (id),
+  FOREIGN KEY (user_id_2) REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS mpa (
   id integer PRIMARY KEY NOT NULL AUTO_INCREMENT,
   mpa varchar
 );
+
+MERGE INTO mpa (id, mpa) VALUES
+(1, 'G'),
+(2, 'PG'),
+(3, 'PG-13'),
+(4, 'R'),
+(5, 'NC-17');
+
 
 CREATE TABLE IF NOT EXISTS film (
   id integer PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -36,10 +46,19 @@ CREATE TABLE IF NOT EXISTS likes (
   FOREIGN KEY (film_id) REFERENCES film (id)
 );
 
-CREATE TABLE IF NOT EXISTS genre (
-  id integer PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  name varchar
+CREATE TABLE IF NOT EXISTS genre
+(
+    id int PRIMARY KEY,
+    name varchar(255) not null
 );
+
+MERGE INTO genre (id, name)
+VALUES (1, 'Комедия'),
+       (2, 'Драма'),
+       (3, 'Мультфильм'),
+       (4, 'Триллер'),
+       (5, 'Документальный'),
+       (6, 'Боевик');
 
 CREATE TABLE IF NOT EXISTS film_genre (
   film_id integer,
@@ -47,25 +66,3 @@ CREATE TABLE IF NOT EXISTS film_genre (
   FOREIGN KEY (film_id) REFERENCES film (id),
   FOREIGN KEY (genre_id) REFERENCES genre (id)
 );
-
-ALTER TABLE friends ADD FOREIGN KEY (user_id_1) REFERENCES users (id);
-ALTER TABLE friends ADD FOREIGN KEY (user_id_2) REFERENCES users (id);
-
-
-
-MERGE INTO genre (id, name)
-values (1, 'Комедия'),
-       (2, 'Драма'),
-       (3, 'Мультфильм'),
-       (4, 'Триллер'),
-       (5, 'Документальный'),
-       (6, 'Боевик');
-
-
-INSERT INTO mpa (mpa) VALUES
-('G'),
-('PG'),
-('PG-13'),
-('R'),
-('NC-17')
-;
