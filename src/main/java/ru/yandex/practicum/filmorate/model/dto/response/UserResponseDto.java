@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 @Data
@@ -19,5 +19,6 @@ public class UserResponseDto {
     private String login;
     private String name;
     private LocalDate birthday;
-    private Set<Long> friends = new HashSet<>();
+    @Builder.Default
+    private Set<Long> friends = Collections.emptySet();
 }

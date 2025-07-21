@@ -19,6 +19,11 @@ public class FilmController {
 
     private final FilmService filmService;
 
+    @GetMapping("/{id}")
+    public FilmResponseDto get(@PathVariable("id") Long id) {
+        return filmService.getFilmById(id);
+    }
+
     @GetMapping
     public Collection<FilmResponseDto> get() {
         return filmService.getFilms();

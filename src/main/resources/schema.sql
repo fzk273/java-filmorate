@@ -53,14 +53,14 @@ ALTER TABLE friends ADD FOREIGN KEY (user_id_2) REFERENCES users (id);
 
 
 
-INSERT INTO genre (name) VALUES
-('Комедия'),
-('Драма'),
-('Мультфильм'),
-('Триллер'),
-('Документальный'),
-('Боевик')
-;
+MERGE INTO genre (id, name)
+values (1, 'Комедия'),
+       (2, 'Драма'),
+       (3, 'Мультфильм'),
+       (4, 'Триллер'),
+       (5, 'Документальный'),
+       (6, 'Боевик');
+
 
 INSERT INTO mpa (mpa) VALUES
 ('G'),

@@ -30,7 +30,6 @@ public class InMemoryUserStorage implements UserStorage {
             long userId = Utils.nextId(users);
             user.setId(userId);
             users.put(userId, user);
-            System.out.println(user);
             log.info("creating user: {}", user);
         }
         return user;

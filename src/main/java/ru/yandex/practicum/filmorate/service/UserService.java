@@ -3,13 +3,14 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -18,18 +19,6 @@ public class UserService {
     private final UserDbStorage userStorage;
     private final UserMapper userMapper;
 
-    public UserResponseDto addFriend(Long userId, Long friendId) {
-        log.info("add friend service");
-        return userMapper.convertToDto(userStorage.addFriend(userId, friendId));
-    }
-
-    public void deleteFriend(Long userId, Long friendId) {
-        userStorage.deleteFriend(userId, friendId);
-    }
-
-    public List<UserResponseDto> getFriendsList(Long userId) {
-        return userStorage.getFriends(userId).stream().map(userMapper::convertToDto).toList();
-    }
 
     public Collection<UserResponseDto> get() {
         return userStorage.get().stream().map(userMapper::convertToDto).toList();
@@ -40,10 +29,47 @@ public class UserService {
     }
 
     public UserResponseDto update(UserRequestDto user) {
+        userIdIsValid(user.getId());
         return userMapper.convertToDto(userStorage.update(userMapper.convertToEntity(user)));
     }
 
+    public UserResponseDto addFriend(Long userId, Long friendId) {
+        log.info("add friend service");
+        userIdIsValid(userId);
+        userIdIsValid(friendId);
+        return userMapper.convertToDto(userStorage.addFriend(userId, friendId));
+    }
+
+    public void deleteFriend(Long userId, Long friendId) {
+        userIdIsValid(userId);
+        userIdIsValid(friendId);
+        userStorage.deleteFriend(userId, friendId);
+    }
+
+    public List<UserResponseDto> getFriendsList(Long userId) {
+        userIdIsValid(userId);
+        Set<User> userSet = new LinkedHashSet<>(userStorage.getFriends(userId));
+        return userSet.stream().map(userMapper::convertToDto).toList();
+    }
+
     public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
-        return userStorage.getCommonFriends(userId, friendId).stream().map(userMapper::convertToDto).toList();
+        userIdIsValid(userId);
+        userIdIsValid(friendId);
+        List<User> userFriends = userStorage.getFriends(userId);
+        List<User> otherUserFriends = userStorage.getFriends(friendId);
+        if (userFriends.isEmpty() || otherUserFriends.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return userFriends.stream().filter(otherUserFriends::contains).map(userMapper::convertToDto).toList();
+        }
+    }
+
+    public boolean userIdIsValid(Long id) {
+        Optional<User> user = userStorage.findUserById(id);
+        if (user.isPresent()) {
+            return true;
+        } else {
+            throw new NotFoundException("this id does not exist");
+        }
     }
 }
