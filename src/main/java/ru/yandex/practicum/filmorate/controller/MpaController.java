@@ -24,7 +24,7 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    public MpaDto getMpaById(@PathVariable Integer id) {
+    public MpaDto getMpaById(@PathVariable Long id) {
         log.info(id.toString());
         return mpaService.getMpaById(id);
     }

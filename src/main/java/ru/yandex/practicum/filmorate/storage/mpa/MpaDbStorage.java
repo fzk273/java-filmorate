@@ -24,7 +24,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpaById(Integer id) {
+    public Mpa getMpaById(Long id) {
         String query = "SELECT * FROM mpa WHERE id = ?";
         Mpa mpa;
         try {

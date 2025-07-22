@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class MpaDto {
-    private Integer id;
+    private Long id;
     protected String name;
 }

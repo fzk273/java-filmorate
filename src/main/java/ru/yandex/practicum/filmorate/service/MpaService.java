@@ -19,7 +19,7 @@ public class MpaService {
         return mpaDbStorage.getRatings().stream().map(MpaMapper::convertToDto).toList();
     }
 
-    public MpaDto getMpaById(Integer id) {
+    public MpaDto getMpaById(Long id) {
         return MpaMapper.convertToDto(mpaDbStorage.getMpaById(id));
     }
 
