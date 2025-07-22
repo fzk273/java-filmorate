@@ -82,8 +82,8 @@ public class FilmService {
         filmDbStorage.deleteLike(filmId, userId);
     }
 
-    public List<FilmResponseDto> getTopTen(Integer count) {
-        return filmDbStorage.getTopTen(count).stream().map(FilmMapper::convertToDto).toList();
+    public List<FilmResponseDto> getTopFilms(Integer count) {
+        return filmDbStorage.getTopFilms(count).stream().map(FilmMapper::convertToDto).toList();
     }
 
     private boolean checkFilmExists(Long id) {

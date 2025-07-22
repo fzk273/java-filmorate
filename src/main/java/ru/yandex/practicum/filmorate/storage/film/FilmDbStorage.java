@@ -131,7 +131,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopTen(Integer count) {
+    public List<Film> getTopFilms(Integer count) {
         String query = """
                 SELECT  f.*, lc.likes_count
                 FROM film f
