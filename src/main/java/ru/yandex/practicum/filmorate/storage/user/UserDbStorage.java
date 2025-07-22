@@ -15,7 +15,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,7 +119,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(Long userId, Long friendId) {
-        return Collections.emptyList();
+        String query = """
+                SELECT u.id, u.email, u.login, u.name, u.birthday
+                FROM friends f1
+                INNER JOIN friends f2 ON f1.user_id_2 = f2.user_id_2
+                INNER JOIN users u ON u.id = f1.user_id_2
+                WHERE f1.user_id_1 = ? AND f2.user_id_1 = ?
+                AND f1.status = 'CONFIRMED' AND f2.status = 'CONFIRMED'
+                """;
+        return jdbc.query(query, userRowMapper, userId, friendId);
     }
 
 

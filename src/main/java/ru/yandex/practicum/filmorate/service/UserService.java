@@ -62,13 +62,7 @@ public class UserService {
     public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
         userIdIsValid(userId);
         userIdIsValid(friendId);
-        List<User> userFriends = userStorage.getFriends(userId);
-        List<User> otherUserFriends = userStorage.getFriends(friendId);
-        if (userFriends.isEmpty() || otherUserFriends.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return userFriends.stream().filter(otherUserFriends::contains).map(UserMapper::convertToDto).toList();
-        }
+        return userStorage.getCommonFriends(userId, friendId).stream().map(UserMapper::convertToDto).toList();
     }
 
     public boolean userIdIsValid(Long id) {
