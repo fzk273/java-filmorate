@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
@@ -9,16 +9,21 @@ import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final UserDbStorage userStorage;
+
+    private final UserStorage userStorage;
     private final UserMapper userMapper;
 
+    public UserService(@Qualifier("userDbStorage") UserDbStorage userStorage, UserMapper userMapper) {
+        this.userStorage = userStorage;
+        this.userMapper = userMapper;
+    }
 
     public Collection<UserResponseDto> get() {
         return userStorage.get().stream().map(userMapper::convertToDto).toList();

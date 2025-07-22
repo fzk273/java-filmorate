@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.model.dto.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.model.dto.response.MpaDto;
 import ru.yandex.practicum.filmorate.model.entity.Film;
 import ru.yandex.practicum.filmorate.model.entity.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
@@ -17,13 +17,24 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
-    private final FilmDbStorage filmDbStorage;
+    private final FilmStorage filmDbStorage;
     private final UserStorage userStorage;
     private final FilmMapper filmMapper;
     private final MpaService mpaService;
     private final GenreService genreService;
+
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmDbStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       FilmMapper filmMapper,
+                       MpaService mpaService,
+                       GenreService genreService) {
+        this.filmDbStorage = filmDbStorage;
+        this.userStorage = userStorage;
+        this.filmMapper = filmMapper;
+        this.mpaService = mpaService;
+        this.genreService = genreService;
+    }
 
     public Collection<FilmResponseDto> getFilms() {
         return filmDbStorage.getFilms().stream().map(filmMapper::convertToDto).toList();
