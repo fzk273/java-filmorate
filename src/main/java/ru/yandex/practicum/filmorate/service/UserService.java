@@ -18,31 +18,29 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final UserMapper userMapper;
 
-    public UserService(@Qualifier("userDbStorage") UserDbStorage userStorage, UserMapper userMapper) {
+    public UserService(@Qualifier("userDbStorage") UserDbStorage userStorage) {
         this.userStorage = userStorage;
-        this.userMapper = userMapper;
     }
 
     public Collection<UserResponseDto> get() {
-        return userStorage.get().stream().map(userMapper::convertToDto).toList();
+        return userStorage.get().stream().map(UserMapper::convertToDto).toList();
     }
 
     public UserResponseDto create(UserRequestDto user) {
-        return userMapper.convertToDto(userStorage.create(userMapper.convertToEntity(user)));
+        return UserMapper.convertToDto(userStorage.create(UserMapper.convertToEntity(user)));
     }
 
     public UserResponseDto update(UserRequestDto user) {
         userIdIsValid(user.getId());
-        return userMapper.convertToDto(userStorage.update(userMapper.convertToEntity(user)));
+        return UserMapper.convertToDto(userStorage.update(UserMapper.convertToEntity(user)));
     }
 
     public UserResponseDto addFriend(Long userId, Long friendId) {
         log.info("add friend service");
         userIdIsValid(userId);
         userIdIsValid(friendId);
-        return userMapper.convertToDto(userStorage.addFriend(userId, friendId));
+        return UserMapper.convertToDto(userStorage.addFriend(userId, friendId));
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -54,7 +52,7 @@ public class UserService {
     public List<UserResponseDto> getFriendsList(Long userId) {
         userIdIsValid(userId);
         Set<User> userSet = new LinkedHashSet<>(userStorage.getFriends(userId));
-        return userSet.stream().map(userMapper::convertToDto).toList();
+        return userSet.stream().map(UserMapper::convertToDto).toList();
     }
 
     public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
@@ -65,7 +63,7 @@ public class UserService {
         if (userFriends.isEmpty() || otherUserFriends.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return userFriends.stream().filter(otherUserFriends::contains).map(userMapper::convertToDto).toList();
+            return userFriends.stream().filter(otherUserFriends::contains).map(UserMapper::convertToDto).toList();
         }
     }
 

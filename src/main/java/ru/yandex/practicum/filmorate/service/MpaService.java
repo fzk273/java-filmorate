@@ -13,18 +13,17 @@ import java.util.List;
 @Service
 public class MpaService {
 
-    private final MpaMapper mpaMapper;
     private final MpaDbStorage mpaDbStorage;
 
     public List<MpaDto> getAllMpa() {
-        return mpaDbStorage.getRatings().stream().map(mpaMapper::convertToDto).toList();
+        return mpaDbStorage.getRatings().stream().map(MpaMapper::convertToDto).toList();
     }
 
     public MpaDto getMpaById(Integer id) {
-        return mpaMapper.convertToDto(mpaDbStorage.getMpaById(id));
+        return MpaMapper.convertToDto(mpaDbStorage.getMpaById(id));
     }
 
-    public boolean checkMpaExist(Integer id) {
-        return mpaDbStorage.getMpaById(id) == null;
-    }
+//    public boolean checkMpaExist(Integer id) {
+//        return mpaDbStorage.getMpaById(id) == null;
+//    }
 }

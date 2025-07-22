@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.model.entity.User;
 
-@Component
 public class UserMapper {
-    public UserResponseDto convertToDto(User user) {
+    public static UserResponseDto convertToDto(User user) {
         return UserResponseDto.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -17,7 +15,7 @@ public class UserMapper {
                 .build();
     }
 
-    public User convertToEntity(UserRequestDto dto) {
+    public static User convertToEntity(UserRequestDto dto) {
         return User.builder()
                 .id(dto.getId())
                 .name(dto.getName())

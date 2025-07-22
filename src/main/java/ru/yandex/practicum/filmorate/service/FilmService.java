@@ -20,29 +20,26 @@ import java.util.Optional;
 public class FilmService {
     private final FilmStorage filmDbStorage;
     private final UserStorage userStorage;
-    private final FilmMapper filmMapper;
     private final MpaService mpaService;
     private final GenreService genreService;
 
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmDbStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       FilmMapper filmMapper,
                        MpaService mpaService,
                        GenreService genreService) {
         this.filmDbStorage = filmDbStorage;
         this.userStorage = userStorage;
-        this.filmMapper = filmMapper;
         this.mpaService = mpaService;
         this.genreService = genreService;
     }
 
     public Collection<FilmResponseDto> getFilms() {
-        return filmDbStorage.getFilms().stream().map(filmMapper::convertToDto).toList();
+        return filmDbStorage.getFilms().stream().map(FilmMapper::convertToDto).toList();
     }
 
     public FilmResponseDto getFilmById(Long id) {
         checkFilmExists(id);
-        FilmResponseDto filmResponseDto = filmMapper.convertToDto(filmDbStorage.getFilmById(id));
+        FilmResponseDto filmResponseDto = FilmMapper.convertToDto(filmDbStorage.getFilmById(id));
         MpaDto mpaDto = mpaService.getMpaById(filmResponseDto.getMpa().getId());
         filmResponseDto.setMpa(mpaDto);
         filmResponseDto.setGenres(genreService.getGenresByFilmId(id));
@@ -52,12 +49,12 @@ public class FilmService {
 
     public FilmResponseDto updateFilms(FilmRequestDto filmRequestDto) {
         checkFilmExists(filmRequestDto.getId());
-        Film film = filmDbStorage.updateFilms(filmMapper.convertToEntity(filmRequestDto));
-        return filmMapper.convertToDto(film);
+        Film film = filmDbStorage.updateFilms(FilmMapper.convertToEntity(filmRequestDto));
+        return FilmMapper.convertToDto(film);
     }
 
     public FilmResponseDto createFilms(FilmRequestDto filmRequestDto) {
-        Film film = filmMapper.convertToEntity(filmRequestDto);
+        Film film = FilmMapper.convertToEntity(filmRequestDto);
 
         mpaService.getMpaById(filmRequestDto.getMpa().getId());
         film = filmDbStorage.createFilms(film);
@@ -70,7 +67,7 @@ public class FilmService {
 
         );
         film.setGenres(filmRequestDto.getGenres());
-        return filmMapper.convertToDto(film);
+        return FilmMapper.convertToDto(film);
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -86,7 +83,7 @@ public class FilmService {
     }
 
     public List<FilmResponseDto> getTopTen(Integer count) {
-        return filmDbStorage.getTopTen(count).stream().map(filmMapper::convertToDto).toList();
+        return filmDbStorage.getTopTen(count).stream().map(FilmMapper::convertToDto).toList();
     }
 
     private boolean checkFilmExists(Long id) {
