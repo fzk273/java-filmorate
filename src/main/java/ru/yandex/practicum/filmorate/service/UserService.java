@@ -28,7 +28,11 @@ public class UserService {
     }
 
     public UserResponseDto create(UserRequestDto user) {
-        return UserMapper.convertToDto(userStorage.create(UserMapper.convertToEntity(user)));
+        User userEntity = UserMapper.convertToEntity(user);
+        if (userEntity.getName().isEmpty() || userEntity.getName().isBlank()) {
+            userEntity.setName(userEntity.getLogin());
+        }
+        return UserMapper.convertToDto(userStorage.create(userEntity));
     }
 
     public UserResponseDto update(UserRequestDto user) {
