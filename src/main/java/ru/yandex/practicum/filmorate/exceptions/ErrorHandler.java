@@ -20,8 +20,6 @@ public class ErrorHandler {
 
     @ExceptionHandler({
             ValidationException.class,
-            DuplicateKeyException.class,
-            ConstraintViolationException.class,
             MethodArgumentNotValidException.class,
             HandlerMethodValidationException.class
     })
@@ -30,6 +28,13 @@ public class ErrorHandler {
         log.error(e.getMessage(), e);
         return new ErrorResponse("error", "Bad Request");
     }
+
+    @ExceptionHandler({DuplicateKeyException.class, ConstraintViolationException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDatabaseConflictException(final ConstraintViolationException e) {
+        return new ErrorResponse("error", "Conflict");
+    }
+
 
     @ExceptionHandler({NotFoundException.class, EmptyResultDataAccessException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)

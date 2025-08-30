@@ -41,7 +41,6 @@ public class UserService {
     }
 
     public UserResponseDto addFriend(Long userId, Long friendId) {
-        log.info("add friend service");
         userIdIsValid(userId);
         userIdIsValid(friendId);
         return UserMapper.convertToDto(userStorage.addFriend(userId, friendId));
