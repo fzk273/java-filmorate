@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmRowsMapper;
 import ru.yandex.practicum.filmorate.model.entity.Film;
 
@@ -30,7 +31,8 @@ public class FilmDbStorage implements FilmStorage {
                     f.description,
                     f.release_date,
                     f.duration,
-                    m.id AS mpa_id
+                    m.id AS mpa_id,
+                    m.mpa
                 FROM film f
                 LEFT JOIN mpa m ON f.mpa_id = m.id
                 """;
@@ -44,7 +46,8 @@ public class FilmDbStorage implements FilmStorage {
                     f.description,
                     f.release_date,
                     f.duration,
-                    m.id AS mpa_id
+                    m.id AS mpa_id,
+                    m.mpa
                 FROM film f
                 LEFT JOIN mpa m ON f.mpa_id = m.id
                 WHERE f.id = ?
@@ -96,13 +99,16 @@ public class FilmDbStorage implements FilmStorage {
                 	mpa_id = ?
                 WHERE id =?;
                 """;
-        jdbc.update(query,
+        int updated = jdbc.update(query,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa() != null ? film.getMpa().getId() : null,
                 film.getId());
+        if (updated == 0) {
+            throw new NotFoundException("there is no such film: " + film.getId());
+        }
         return film;
     }
 
@@ -117,7 +123,10 @@ public class FilmDbStorage implements FilmStorage {
                 INSERT INTO likes (film_id, user_id)
                 VALUES (?,?)
                 """;
-        jdbc.update(query, filmId, userId);
+        int updated = jdbc.update(query, filmId, userId);
+        if (updated == 0) {
+            throw new NotFoundException("there is no such film: " + filmId + "or user: " + userId);
+        }
     }
 
     @Override
@@ -127,13 +136,16 @@ public class FilmDbStorage implements FilmStorage {
                 WHERE film_id = ? AND
                     user_id = ?
                 """;
-        jdbc.update(query, filmId, userId);
+        int updated = jdbc.update(query, filmId, userId);
+        if (updated == 0) {
+            throw new NotFoundException("there is no such film: " + filmId + "or user: " + userId);
+        }
     }
 
     @Override
     public List<Film> getTopFilms(Integer count) {
         String query = """
-                SELECT  f.*, lc.likes_count
+                SELECT  f.*, m.mpa, lc.likes_count
                 FROM film f
                 JOIN (
                 	SELECT film_id,
@@ -143,6 +155,7 @@ public class FilmDbStorage implements FilmStorage {
                 	ORDER BY likes_count DESC
                 	LIMIT ?) AS lc
                 ON f.id = lc.film_id
+                LEFT JOIN mpa m ON f.mpa_id = m.id
                 ORDER BY lc.likes_count DESC
                 """;
         return jdbc.query(query, filmRowsMapper, count);
