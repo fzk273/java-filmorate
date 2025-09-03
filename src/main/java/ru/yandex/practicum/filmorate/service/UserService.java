@@ -59,9 +59,11 @@ public class UserService {
     }
 
     public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
-        userIdIsValid(userId);
-        userIdIsValid(friendId);
-        return userStorage.getCommonFriends(userId, friendId).stream().map(UserMapper::convertToDto).toList();
+        List<User> friends = userStorage.getCommonFriends(userId, friendId);
+        if (friends.isEmpty()) {
+            throw new NotFoundException("there is no such user: " + userId + " or: " + friendId);
+        }
+        return friends.stream().map(UserMapper::convertToDto).toList();
     }
 
     public boolean userIdIsValid(Long id) {
@@ -69,7 +71,7 @@ public class UserService {
         if (user.isPresent()) {
             return true;
         } else {
-            throw new NotFoundException("this id does not exist");
+            throw new NotFoundException("this id does not exist: " + id);
         }
     }
 }
