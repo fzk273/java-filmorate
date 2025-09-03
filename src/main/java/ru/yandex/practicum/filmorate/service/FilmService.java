@@ -1,36 +1,43 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.model.dto.request.FilmRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.FilmResponseDto;
-import ru.yandex.practicum.filmorate.model.dto.response.MpaDto;
 import ru.yandex.practicum.filmorate.model.entity.Film;
+import ru.yandex.practicum.filmorate.model.entity.Mpa;
 import ru.yandex.practicum.filmorate.model.entity.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmDbStorage;
     private final UserStorage userStorage;
     private final MpaService mpaService;
-    private final GenreService genreService;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmDbStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       MpaService mpaService,
-                       GenreService genreService) {
+                       MpaService mpaService, MpaStorage mpaStorage,
+                       GenreStorage genreStorage) {
         this.filmDbStorage = filmDbStorage;
         this.userStorage = userStorage;
         this.mpaService = mpaService;
-        this.genreService = genreService;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Collection<FilmResponseDto> getFilms() {
@@ -40,9 +47,9 @@ public class FilmService {
     public FilmResponseDto getFilmById(Long id) {
         checkFilmExists(id);
         FilmResponseDto filmResponseDto = FilmMapper.convertToDto(filmDbStorage.getFilmById(id));
-        MpaDto mpaDto = mpaService.getMpaById(filmResponseDto.getMpa().getId());
-        filmResponseDto.setMpa(mpaDto);
-        filmResponseDto.setGenres(genreService.getGenresByFilmId(id));
+        Mpa mpa = mpaStorage.getMpaById(filmResponseDto.getMpa().getId());
+        filmResponseDto.setMpa(MpaMapper.convertToDto(mpa));
+        filmResponseDto.setGenres(genreStorage.getGenresByFilmId(id));
         filmResponseDto.setLikes(filmDbStorage.getLikesByFilmId(id));
         return filmResponseDto;
     }
@@ -59,12 +66,14 @@ public class FilmService {
         mpaService.getMpaById(filmRequestDto.getMpa().getId());
         film = filmDbStorage.createFilms(film);
         Long filmId = film.getId();
+        List<Long> genres = genreStorage.getGenreIds();
         filmRequestDto.getGenres().forEach(genre -> {
-                    genreService.getGenreById(genre.getId());
-                    getFilmById(filmId);
-                    genreService.setGenreToFilm(genre.getId(), filmId);
+            if (genres.contains(genre.getId())) {
+                genreStorage.setGenreToFilm(genre.getId(), filmId);
+            } else {
+                throw new NotFoundException("There is no such genre: " + genre.getId());
+            }
                 }
-
         );
         film.setGenres(filmRequestDto.getGenres());
         return FilmMapper.convertToDto(film);

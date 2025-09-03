@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MpaDto {
     private Long id;
-    protected String name;
+    private String name;
 }

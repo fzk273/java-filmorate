@@ -7,10 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mapper.GenreRowsMapper;
 import ru.yandex.practicum.filmorate.model.entity.Genre;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 @Repository
@@ -35,7 +32,6 @@ public class GenreDbStorage implements GenreStorage {
         }
     }
 
-
     @Override
     public void setGenreToFilm(Long genreId, Long filmId) {
         String query = "INSERT INTO film_genre (genre_id, film_id) VALUES (?,?)";
@@ -47,5 +43,12 @@ public class GenreDbStorage implements GenreStorage {
         String query = "SELECT * FROM genre WHERE id IN (SELECT genre_id FROM film_genre WHERE film_id = ?)";
         List<Genre> genres = jdbcTemplate.query(query, genreRowsMapper, id);
         return new HashSet<>(genres);
+    }
+
+    @Override
+    public List<Long> getGenreIds() {
+        List<Genre> genres = getGenres();
+        return genres.stream()
+                .map(Genre::getId).filter(Objects::nonNull).toList();
     }
 }
