@@ -113,7 +113,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Set<Long> getLikesByFilmId(Long id) {
-        String query = "SELECT FROM likes WHERE film_id = ?";
+        String query = "SELECT user_id FROM likes WHERE film_id = ?";
         return Set.copyOf(jdbc.queryForList(query, Long.class, id));
     }
 

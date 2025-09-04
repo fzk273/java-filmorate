@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -16,6 +13,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(exclude = {"likes", "genres"})
 @AllArgsConstructor
+@NoArgsConstructor
 public class Film {
 
     private Long id;
