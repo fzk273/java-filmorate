@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.entity.Film;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface FilmStorage {
@@ -23,4 +24,6 @@ public interface FilmStorage {
     Film getFilmById(Long id);
 
     Set<Long> getLikesByFilmId(Long id);
+
+    Map<Long, List<Long>> getLikesByFilmIds(List<Long> filmIds);
 }

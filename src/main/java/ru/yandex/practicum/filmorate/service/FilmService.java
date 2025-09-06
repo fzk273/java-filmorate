@@ -10,33 +10,36 @@ import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.model.dto.request.FilmRequestDto;
 import ru.yandex.practicum.filmorate.model.dto.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.model.entity.Film;
+import ru.yandex.practicum.filmorate.model.entity.Genre;
 import ru.yandex.practicum.filmorate.model.entity.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
 public class FilmService {
+
     private final FilmStorage filmDbStorage;
-    private final MpaService mpaService;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
 
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmDbStorage,
-                       MpaService mpaService, MpaStorage mpaStorage,
+                       MpaStorage mpaStorage,
                        GenreStorage genreStorage) {
         this.filmDbStorage = filmDbStorage;
-        this.mpaService = mpaService;
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
     }
 
     public Collection<FilmResponseDto> getFilms() {
-        return filmDbStorage.getFilms().stream().map(FilmMapper::convertToDto).toList();
+        Collection<Film> films = filmDbStorage.getFilms();
+        return enrichAndMap(films);
     }
 
     public FilmResponseDto getFilmById(Long id) {
@@ -61,18 +64,19 @@ public class FilmService {
     public FilmResponseDto createFilms(FilmRequestDto filmRequestDto) {
         Film film = FilmMapper.convertToEntity(filmRequestDto);
 
-        mpaService.getMpaById(filmRequestDto.getMpa().getId());
+        mpaStorage.getMpaById(filmRequestDto.getMpa().getId());
+
         film = filmDbStorage.createFilms(film);
         Long filmId = film.getId();
-        List<Long> genres = genreStorage.getGenreIds();
+
+        List<Long> validGenreIds = genreStorage.getGenreIds();
         filmRequestDto.getGenres().forEach(genre -> {
-            if (genres.contains(genre.getId())) {
+            if (validGenreIds.contains(genre.getId())) {
                 genreStorage.setGenreToFilm(genre.getId(), filmId);
             } else {
                 throw new NotFoundException("There is no such genre: " + genre.getId());
             }
-                }
-        );
+        });
         film.setGenres(filmRequestDto.getGenres());
         return FilmMapper.convertToDto(film);
     }
@@ -86,7 +90,29 @@ public class FilmService {
     }
 
     public List<FilmResponseDto> getTopFilms(Integer count) {
-        return filmDbStorage.getTopFilms(count).stream().map(FilmMapper::convertToDto).toList();
+        Collection<Film> films = filmDbStorage.getTopFilms(count);
+        return enrichAndMap(films);
     }
 
+
+    private List<FilmResponseDto> enrichAndMap(Collection<Film> films) {
+        if (films == null || films.isEmpty()) return List.of();
+
+        List<Long> filmIds = films.stream().map(Film::getId).toList();
+
+        Map<Long, List<Genre>> genresByFilmIdList = genreStorage.getGenresByFilmIds(filmIds);
+        Map<Long, List<Long>> likesByFilmIdList = filmDbStorage.getLikesByFilmIds(filmIds);
+
+        return films.stream().map(f -> {
+            FilmResponseDto dto = FilmMapper.convertToDto(f);
+
+            List<Genre> gList = genresByFilmIdList.getOrDefault(f.getId(), List.of());
+            dto.setGenres(new LinkedHashSet<>(gList));
+
+            List<Long> lList = likesByFilmIdList.getOrDefault(f.getId(), List.of());
+            dto.setLikes(new LinkedHashSet<>(lList));
+
+            return dto;
+        }).toList();
+    }
 }

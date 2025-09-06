@@ -12,9 +12,8 @@ import ru.yandex.practicum.filmorate.model.entity.Film;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -116,6 +115,29 @@ public class FilmDbStorage implements FilmStorage {
         String query = "SELECT user_id FROM likes WHERE film_id = ?";
         return Set.copyOf(jdbc.queryForList(query, Long.class, id));
     }
+
+    @Override
+    public Map<Long, List<Long>> getLikesByFilmIds(List<Long> filmIds) {
+        if (filmIds == null || filmIds.isEmpty()) return Map.of();
+
+        String inSql = filmIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        String sql = """
+                SELECT film_id, user_id
+                FROM likes
+                WHERE film_id IN (""" + inSql + ") ORDER BY film_id, user_id";
+
+        Object[] params = filmIds.toArray();
+        return jdbc.query(sql, rs -> {
+            Map<Long, List<Long>> map = new HashMap<>();
+            while (rs.next()) {
+                long filmId = rs.getLong("film_id");
+                long userId = rs.getLong("user_id");
+                map.computeIfAbsent(filmId, k -> new ArrayList<>()).add(userId);
+            }
+            return map;
+        }, params);
+    }
+
 
     @Override
     public void addLike(Long filmId, Long userId) {

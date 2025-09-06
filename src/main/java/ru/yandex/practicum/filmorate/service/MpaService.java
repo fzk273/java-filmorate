@@ -23,7 +23,4 @@ public class MpaService {
         return MpaMapper.convertToDto(mpaDbStorage.getMpaById(id));
     }
 
-//    public boolean checkMpaExist(Integer id) {
-//        return mpaDbStorage.getMpaById(id) == null;
-//    }
 }

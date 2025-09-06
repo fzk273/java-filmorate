@@ -132,4 +132,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Set<Long> getLikesByFilmId(Long id) {
         return Set.of();
     }
+
+    @Override
+    public Map<Long, List<Long>> getLikesByFilmIds(List<Long> filmIds) {
+        return Map.of();
+    }
 }
