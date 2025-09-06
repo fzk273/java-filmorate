@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.Utils;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.entity.User;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -15,6 +16,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+
+@Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final HashMap<Long, User> users;
 
@@ -30,7 +33,6 @@ public class InMemoryUserStorage implements UserStorage {
             long userId = Utils.nextId(users);
             user.setId(userId);
             users.put(userId, user);
-            System.out.println(user);
             log.info("creating user: {}", user);
         }
         return user;

@@ -2,23 +2,22 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.Utils;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.entity.Film;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Qualifier("inMemoryUserStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -72,7 +71,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopTen(Integer count) {
+    public List<Film> getTopFilms(Integer count) {
         return getFilms().stream()
                 .sorted(Comparator.comparing(film -> film.getLikes().size()))
                 .limit(count)
@@ -122,5 +121,20 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new ValidationException("Duration cant be negative");
         }
         return true;
+    }
+
+    @Override
+    public Film getFilmById(Long id) {
+        return null;
+    }
+
+    @Override
+    public Set<Long> getLikesByFilmId(Long id) {
+        return Set.of();
+    }
+
+    @Override
+    public Map<Long, List<Long>> getLikesByFilmIds(List<Long> filmIds) {
+        return Map.of();
     }
 }

@@ -1,47 +1,77 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.dto.request.UserRequestDto;
+import ru.yandex.practicum.filmorate.model.dto.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.model.entity.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private final UserStorage userStorage;
 
-    public User addFriend(Long userId, Long friendId) {
-        log.info("add friend service");
-        return userStorage.addFriend(userId, friendId);
+    public UserService(@Qualifier("userDbStorage") UserDbStorage userStorage) {
+        this.userStorage = userStorage;
+    }
+
+    public Collection<UserResponseDto> get() {
+        return userStorage.get().stream().map(UserMapper::convertToDto).toList();
+    }
+
+    public UserResponseDto create(UserRequestDto user) {
+        User userEntity = UserMapper.convertToEntity(user);
+        if (userEntity.getName().isEmpty() || userEntity.getName().isBlank()) {
+            userEntity.setName(userEntity.getLogin());
+        }
+        return UserMapper.convertToDto(userStorage.create(userEntity));
+    }
+
+    public UserResponseDto update(UserRequestDto user) {
+        userIdIsValid(user.getId());
+        return UserMapper.convertToDto(userStorage.update(UserMapper.convertToEntity(user)));
+    }
+
+    public UserResponseDto addFriend(Long userId, Long friendId) {
+        userIdIsValid(userId);
+        userIdIsValid(friendId);
+        return UserMapper.convertToDto(userStorage.addFriend(userId, friendId));
     }
 
     public void deleteFriend(Long userId, Long friendId) {
+        userIdIsValid(userId);
+        userIdIsValid(friendId);
         userStorage.deleteFriend(userId, friendId);
     }
 
-    public List<User> getFriendsList(Long userId) {
-        return userStorage.getFriends(userId);
+    public List<UserResponseDto> getFriendsList(Long userId) {
+        userIdIsValid(userId);
+        Set<User> userSet = new LinkedHashSet<>(userStorage.getFriends(userId));
+        return userSet.stream().map(UserMapper::convertToDto).toList();
     }
 
-    public Collection<User> get() {
-        return userStorage.get();
+    public List<UserResponseDto> getCommonFriends(Long userId, Long friendId) {
+        List<User> friends = userStorage.getCommonFriends(userId, friendId);
+        if (friends.isEmpty()) {
+            throw new NotFoundException("there is no such user: " + userId + " or: " + friendId);
+        }
+        return friends.stream().map(UserMapper::convertToDto).toList();
     }
 
-    public User create(User user) {
-        return userStorage.create(user);
-    }
-
-    public User update(User user) {
-        return userStorage.update(user);
-    }
-
-    public List<User> getCommonFriends(Long userId, Long friendId) {
-        return userStorage.getCommonFriends(userId, friendId);
+    public boolean userIdIsValid(Long id) {
+        Optional<User> user = userStorage.findUserById(id);
+        if (user.isPresent()) {
+            return true;
+        } else {
+            throw new NotFoundException("this id does not exist: " + id);
+        }
     }
 }
